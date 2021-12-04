@@ -1,0 +1,4 @@
+# To exclude from tracking 
+*.vscode
+/node_modules/
+*.DS_Store
