@@ -19,6 +19,29 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         sys_abort(USAGE);
     }
+
+    printf("%s\n", argv[1]);
+
+    /*
+    TODO: Add schema.txt folder with root structure
+    Detect the root folder from the bin folder
+    .
+    |- bin
+    |-|- main
+    Remove the last two folders from the path
+    */
+    char script_source[MAX_STR_LENGTH];
+    strcpy(script_source, argv[1]);
+    char *last_slash = strrchr(script_source, '/');
+    *last_slash = '\0';
+    last_slash = strrchr(script_source, '/');
+    *last_slash = '\0';
+
+    // Modify paths to global support with the root folder
+    char TRANSLATION[MAX_STR_LENGTH], output_path[MAX_STR_LENGTH];
+    snprintf(TRANSLATION, MAX_STR_LENGTH, "%s/%s", script_source, root_translate);
+    snprintf(output_path, MAX_STR_LENGTH, "%s/%s", script_source, root_out);
+
     // Deploy initial function to greet the user
     greet();
 
@@ -46,11 +69,13 @@ int main(int argc, char *argv[]) {
 
     long d;
     // Check if refresh is needed
-    if (!eligibleForRefresh(&d)) {
-        printf("%sRefresh in: %s%li seconds. %s", RED, ITALICS, (time_gap - d), RESET);
+    if (!eligibleForRefresh(&d, TRANSLATION)) {
+        printf("%sRefresh in: %s%li seconds.%s", RED, ITALICS, (time_gap - d), RESET);
         printf("%sDisplaying the last entry. %s\n", RED, RESET);
         sleep(1);
-        MOUNT;
+        char temp[MAX_STR_LENGTH];
+        snprintf(temp, MAX_STR_LENGTH, "sh %s/mount.sh", script_source);
+        system(temp);
         return 1;
     }
 
@@ -63,7 +88,7 @@ int main(int argc, char *argv[]) {
     FILE *database = fopen(database_path, "r");
 
     // Fixed size buffer for reading from file
-    char line[MAX_WORD_LENGTH];
+    char line[MAX_STR_LENGTH];
 
     while (fgets(line, sizeof(line), database)) {
         // Create a new node
@@ -159,8 +184,9 @@ int main(int argc, char *argv[]) {
     fprintf(translation_path, "%s\n", time_string);
     fclose(translation_path);
 
-    // Create the write command, depending on '>>' command
-    const char *writeCommand = ">> dist/translation.txt\n";
+    // Create the write command, with'>>' 
+    char writeCommand[MAX_STR_LENGTH];
+    snprintf(writeCommand, sizeof(writeCommand), ">> %s\n", TRANSLATION);
 
     // Iterate over the contents of the array
     // Exclude garbage values
@@ -298,10 +324,10 @@ bool computeRandomEvent(int p) {
 }
 
 // Create a function to determine eligible for a refreshent
-bool eligibleForRefresh(long* d_p) {
+bool eligibleForRefresh(long* d_p, char *translation_path) {
     time_t T;
     time(&T);
-    const char *default_time = readLine(TRANSLATION);
+    const char *default_time = readLine(translation_path);
 
     // If is empty return true -> new activity
     if (default_time == NULL) {
