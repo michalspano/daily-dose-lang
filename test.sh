@@ -24,8 +24,7 @@ for f in "${files[@]}"; do
         echo "${user_langugae_path}"
         break
     fi
-    # FIXME: Temporary replacement empty dir
-    user_langugae_path="././"
+    user_langugae_path="null"
 done
 
 # Concatinate the path and the binary name
