@@ -19,9 +19,6 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         sys_abort(USAGE);
     }
-
-    printf("%s\n", argv[1]);
-
     /*
     TODO: Add schema.txt folder with root structure
     Detect the root folder from the bin folder
@@ -31,7 +28,7 @@ int main(int argc, char *argv[]) {
     Remove the last two folders from the path
     */
     char script_source[MAX_STR_LENGTH];
-    strcpy(script_source, argv[1]);
+    strcpy(script_source, argv[0]);
     char *last_slash = strrchr(script_source, '/');
     *last_slash = '\0';
     last_slash = strrchr(script_source, '/');
@@ -54,10 +51,10 @@ int main(int argc, char *argv[]) {
     }
     // FIXME: add proper error handling
     if (!validatePath(output_path)) {
-        sys_abort("File not found.");
+        sys_abort("Output file not found.");
     }
     if (!validatePath(TRANSLATION)) {
-        sys_abort("File not found.");
+        sys_abort("Translation file not found.");
     }
 
     // Get the language prefix from the desired database
@@ -273,6 +270,10 @@ int termWidth(void) {
 
 // Check if given path exists
 bool validatePath(char *path) {
+    // Check manually parsed 'null' from shell
+    if (strcmp(path, "null") == 0) {
+        return false;
+    }
     // Check if the given path exists
     if (access(path, F_OK) != -1) {
         return true;
