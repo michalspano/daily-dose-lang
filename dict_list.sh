@@ -3,6 +3,17 @@
 database_path="${0%/*}/database/"
 flag="$1"
 
+# Help flag
+if [ "$flag" = "-h" ] || [ "$flag" = "--help" ] || [ "$flag" = "" ]; then
+    printf "Usage: dict_list.sh [OPTION]\n"
+    printf "Database path: %s\n" "'$database_path'"
+    printf "Options:\n"
+    printf "  -h, --help    Show this help message and exit\n"
+    printf "  -f, --full    Show relative paths of supposted dictionaries\n"
+    printf "                Default: Show only dictionary name\n"
+    exit 0
+fi
+
 # Colors
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -15,7 +26,7 @@ printf "\n${GREEN}${UNDERLINE}Supported dictionaries - "
 
 # Check if the flag is set to '-f' or '--full'
 if [ "$flag" = "-f" ] || [ "$flag" = "--full" ]; then
-    printf "(full path):${RESET}\n"
+    printf "(relative path):${RESET}\n"
     ifFull=1
 else
     printf "(key flags):${RESET}\n"
@@ -40,3 +51,4 @@ for file in $database_path*; do
         fi
     fi
 done
+exit 0
