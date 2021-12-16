@@ -10,8 +10,7 @@
 #include <sys/stat.h>
 
 // Define MACROS
-#define USAGE "Usage: ./main.c <database_input> <input>"
-#define DB_ERR "Error: Database source not found"
+#define USAGE "Usage: ./main.c <database_input>\nOptional flags:\n-ul, --unlimited  Unlimited mode (disabled real-time counter)\n"
 #define GREET printf("%s%s%s\n", GREEN, PROMPT, RESET)
 #define MAX_STR_LENGTH 256
 #define SEED_RESET srand(time(NULL))
@@ -35,6 +34,7 @@ const char* LANGUAGES[SIZE] = {"german", "de",
 void greet(void);
 int termWidth(void);
 int sys_abort(char *msg);
+int fileAbort(char *err_path);
 bool computeRandomEvent(int p);
 char *readLine(const char *file_path);
 const char *languageOptions(char *db_path);

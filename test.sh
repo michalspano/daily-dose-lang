@@ -29,4 +29,11 @@ done
 
 # Concatinate the path and the binary name
 bin_path="$current_path$fixied_bin_path"
-exec "$bin_path" "$user_langugae_path"
+
+# Default run
+if [ -z "$2" ]; then
+    exec "$bin_path" "$user_langugae_path"
+else
+    # Parse any additional flags
+    exec "$bin_path" "$user_langugae_path" "$2"
+fi  

@@ -16,6 +16,8 @@ struct node {
 
 // Define the main function
 int main(int argc, char *argv[]) {
+    // Minimum number of command line arguments:
+    // [0]. base filename; [1]. database_path; [2]. optional flags
     if (argc < 2) {
         sys_abort(USAGE);
     }
@@ -42,38 +44,45 @@ int main(int argc, char *argv[]) {
     // Deploy initial function to greet the user
     greet();
 
-    // Append path to database from the command-line
     char *database_path = argv[1];
-
-    // Check if database does exist
     if (!validatePath(database_path)) {
-        sys_abort(DB_ERR);
+        exit(fileAbort(database_path));
     }
-    // FIXME: add proper error handling
     if (!validatePath(output_path)) {
-        sys_abort("Output file not found.");
+        exit(fileAbort(output_path));
     }
     if (!validatePath(TRANSLATION)) {
-        sys_abort("Translation file not found.");
+        exit(fileAbort(TRANSLATION));
     }
 
-    // Get the language prefix from the desired database
     const char *lang_prefix = languageOptions(database_path);
-    // Handle unsupported language prefix
     if (lang_prefix == NULL) {
         sys_abort(INVALID_LANGUAGE);
     }
 
-    long d;
-    // Check if refresh is needed
-    if (!eligibleForRefresh(&d, TRANSLATION)) {
-        printf("%sRefresh in: %s%li seconds.%s", RED, ITALICS, (time_gap - d), RESET);
-        printf("%sDisplaying the last entry. %s\n", RED, RESET);
-        sleep(1);
-        char temp[MAX_STR_LENGTH];
-        snprintf(temp, MAX_STR_LENGTH, "sh %s/mount.sh", script_source);
-        system(temp);
-        return 1;
+    bool enableTimeTracking = true;
+    // Validate any optional flags
+    if (argc == 3) {
+        char *flag = argv[2];
+        if ((strcmp(flag, "-ul") == 0) || (strcmp(flag, "--unlimited-mode") == 0)) {
+            printf("%sUnlimited mode enabled!%s\n", YELLOW, RESET);
+            enableTimeTracking = false;
+        } else {
+            sys_abort(USAGE);
+        }
+    }
+
+    if (enableTimeTracking) {
+        long d;
+        if (!eligibleForRefresh(&d, TRANSLATION)) {
+            printf("%sRefresh in: %s%li seconds.%s", RED, ITALICS, (time_gap - d), RESET);
+            printf("%sDisplaying the last entry. %s\n", RED, RESET);
+            sleep(1);
+            char temp[MAX_STR_LENGTH];
+            snprintf(temp, MAX_STR_LENGTH, "sh %s/mount.sh", script_source);
+            system(temp);
+            return 1;
+        }
     }
 
     // Create new linked list
@@ -151,8 +160,7 @@ int main(int argc, char *argv[]) {
     }
     // Print the words
     printf("%s\n%sRandomly chosen words:\n%s", GREEN, UNDERLINE, RESET);
-    // Instantiate the translation command
-    // FIXME: dependency on the translation command via npm
+    // Create the translation command
     char translate_command[50];
     snprintf(translate_command, sizeof(translate_command), "translate -s %s -t %s", lang_prefix, "en");
 
@@ -260,6 +268,12 @@ int sys_abort(char *msg) {
     exit(1);    
 }
 
+// Report handle file errors
+int fileAbort(char *err_path) {
+    printf("%sError opening file %s.%s\n", RED, err_path, RESET);
+    return 1;
+}
+
 // Evaluate current terminal session
 int termWidth(void) {
     struct winsize w;
@@ -278,19 +292,6 @@ bool validatePath(char *path) {
     if (access(path, F_OK) != -1) {
         return true;
     }
-    char* PATH = malloc(sizeof(path));
-    strcpy(PATH, path);
-
-    // Split to directory and file name
-    char *dir = strtok(PATH, "/");
-    char *file = strtok(NULL, "/");
-    char cmd[100];
-
-    // Execute a command to make the directory and the file
-    snprintf(cmd, sizeof(cmd), "mkdir -p %s/ && touch %s/%s\n", 
-    dir, dir, file);
-    system(cmd);
-
     // Warn the user
     return false;
 }
