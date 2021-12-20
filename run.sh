@@ -1,5 +1,4 @@
 #!/bin/sh
-# FIXME: Temporary replacement of run.sh
 current_path="$0"
 dict_lang="$1"
 
@@ -21,7 +20,6 @@ for f in "${files[@]}"; do
     f="${f%.*}"
     if [ "$f" = "${dict_lang}" ]; then
         user_langugae_path="${database_path}${f}.txt"
-        echo "${user_langugae_path}"
         break
     fi
     user_langugae_path="null"
