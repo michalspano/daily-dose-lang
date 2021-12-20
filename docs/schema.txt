@@ -1,0 +1,32 @@
+# Daily-Dose-of-Lang
+# Michal Spano - @michalspano
+# This file is manually maintained.
+# Any further updates will be overwritten.
+.
+├── bin
+│   ├── main
+│   └── mount
+├── colors.h
+├── comp.sh
+├── database
+│   ├── database.md
+│   ├── german_wordlist.txt
+│   ├── russian_wordlist.txt
+│   └── swedish_wordlist.txt
+├── dict_list.sh
+├── dist
+│   ├── output.txt
+│   └── translation.txt
+├── docs
+│   └── schema.txt
+├── main.c
+├── mount.c
+├── mount.sh
+├── readme.md
+├── run.sh
+├── test.sh
+└── types.h
+
+4 directories, 19 files
+Version: v0.0.0
+# Have fun :)
