@@ -16,19 +16,19 @@ struct node {
 
 // Define the main function
 int main(int argc, char *argv[]) {
-    // Minimum number of command line arguments:
-    // [0]. base filename; [1]. database_path; [2]. optional flags
+                                                                            /*       
+        ***Minimum number of command line arguments***
+    [0]. base filename; [1]. database_path; [2]. optional flags             */
+
     if (argc < 2) {
         sys_abort(USAGE);
     }
-    /*
-    TODO: Add schema.txt folder with root structure
-    Detect the root folder from the bin folder
-    .
-    |- bin
-    |-|- main
-    Remove the last two folders from the path
-    */
+
+                                                                            /*
+                ***Getting the root of the project***
+        The file structure can be observed via running ./schema.sh
+        This will infer global support from the command line
+                                                                            */
     char script_source[MAX_STR_LENGTH];
     strcpy(script_source, argv[0]);
     char *last_slash = strrchr(script_source, '/');
@@ -42,25 +42,36 @@ int main(int argc, char *argv[]) {
     snprintf(output_path, MAX_STR_LENGTH, "%s/%s", script_source, root_out);
 
     // Deploy initial function to greet the user
-    greet();
 
     char *database_path = argv[1];
-    if (!validatePath(database_path)) {
+
+    // Check empty invoke -> Show usage
+    if (strcmp(database_path, "null") == 0) {
+        sys_abort(USAGE);
+    }
+
+    // Check if IO paths are valid
+    else if (!validatePath(database_path)) {
         exit(fileAbort(database_path));
     }
-    if (!validatePath(output_path)) {
+    else if (!validatePath(output_path)) {
         exit(fileAbort(output_path));
     }
-    if (!validatePath(TRANSLATION)) {
+    else if (!validatePath(TRANSLATION)) {
         exit(fileAbort(TRANSLATION));
     }
 
+    // Get the language prefix from the desired wordlist
     const char *lang_prefix = languageOptions(database_path);
     if (lang_prefix == NULL) {
         sys_abort(INVALID_LANGUAGE);
     }
 
     bool enableTimeTracking = true;
+
+    // Initial greet function
+    greet();
+
     // Validate any optional flags
     if (argc == 3) {
         char *flag = argv[2];
@@ -72,12 +83,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Default behavior is to enable time tracking
     if (enableTimeTracking) {
         long d;
         if (!eligibleForRefresh(&d, TRANSLATION)) {
             printf("%sRefresh in: %s%li seconds.%s", RED, ITALICS, (time_gap - d), RESET);
-            printf("%sDisplaying the last entry. %s\n", RED, RESET);
+            printf("%s Displaying the last entry. %s\n", RED, RESET);
             sleep(1);
+
             char temp[MAX_STR_LENGTH];
             snprintf(temp, MAX_STR_LENGTH, "sh %s/mount.sh", script_source);
             system(temp);
@@ -96,6 +109,7 @@ int main(int argc, char *argv[]) {
     // Fixed size buffer for reading from file
     char line[MAX_STR_LENGTH];
 
+    // Insert data into a singly linked list
     while (fgets(line, sizeof(line), database)) {
         // Create a new node
         struct node *new_node = (struct node *) malloc(sizeof(struct node));
@@ -104,8 +118,9 @@ int main(int argc, char *argv[]) {
         if (strlen(line) > longest_word) {
             longest_word = strlen(line);
         }
+
         // Skip words starting with a hyphen 
-        // since 'translate' function takes flags in the form:
+        // Hence 'translate' function takes flags in the form:
         // -s -t -h, etc.
         if (line[0] == '-') {
             continue;
@@ -113,6 +128,7 @@ int main(int argc, char *argv[]) {
 
         // Copy the data from the file into the node
         new_node->data = strdup(line);
+
         // Point the next pointer to NULL
         new_node->next = NULL;
 
@@ -122,8 +138,10 @@ int main(int argc, char *argv[]) {
         } else {
             current->next = new_node;
         }
+
         // Reset current node to new_node
         current = new_node;
+
         // Increment word count
         word_count++;
     }
@@ -135,10 +153,13 @@ int main(int argc, char *argv[]) {
     SEED_RESET;
     int i = 0;
     bool toWriteCurrentWord;
-    // FIXME: This variable is temporarily set to 5
-    const int numberOfDesiredWords = 5;
+
+    // The number of desired words will be set to 10
+    // This behaviour can be overridden by the user
+    const int numberOfDesiredWords = 10;
+
     // Percentage ratio
-    int ratio = word_count / numberOfDesiredWords - 1;
+    int ratio = word_count / numberOfDesiredWords;
 
     // Buffer to hold randomly chosen words
     char *arr[numberOfDesiredWords];
@@ -149,17 +170,18 @@ int main(int argc, char *argv[]) {
         if (i == numberOfDesiredWords || current->next == NULL) {
             break;
         }
-        // FIXME: mathematical relation and formula required
+
         // Decide upon random event
+        // The current module will infer the count to be <0; 10> randomly
         toWriteCurrentWord = computeRandomEvent(ratio);
         if (toWriteCurrentWord) {
             arr[i] = current->data;
             i++;
         }
-
     }
     // Print the words
-    printf("%s\n%sRandomly chosen words:\n%s", GREEN, UNDERLINE, RESET);
+    printf("%s%sRandomly chosen words:\n\n%s", GREEN, UNDERLINE, RESET);
+
     // Create the translation command
     char translate_command[50];
     snprintf(translate_command, sizeof(translate_command), "translate -s %s -t %s", lang_prefix, "en");
@@ -171,23 +193,24 @@ int main(int argc, char *argv[]) {
     }
 
     // Translation output file reset
-    FILE *translation_path = fopen(TRANSLATION, "w");
-    if (translation_path == NULL) {
+    FILE *translation_reset = fopen(TRANSLATION, "w");
+    if (translation_reset == NULL) {
         sys_abort("File error.");
     }
-    fclose(translation_path);
+    fclose(translation_reset);
 
     // Detect the current time
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
+
     // Convert to string 
     char time_string[80];
     strftime(time_string, sizeof(time_string), "%c", &tm);
 
     // Write to translation_path
-    translation_path = fopen(TRANSLATION, "a");
-    fprintf(translation_path, "%s\n", time_string);
-    fclose(translation_path);
+    FILE *translationFile = fopen(TRANSLATION, "a");
+    fprintf(translationFile, "%s\n", time_string);
+    fclose(translationFile);
 
     // Create the write command, with'>>' 
     char writeCommand[MAX_STR_LENGTH];
@@ -196,8 +219,10 @@ int main(int argc, char *argv[]) {
     // Iterate over the contents of the array
     // Exclude garbage values
     for (int j = 0; j < i; j++) {
+
         // Write word to output file
         fprintf(output, "%s", arr[j]);
+
         // Create a cmd buffer
         char cmd[256];
 
@@ -216,6 +241,7 @@ int main(int argc, char *argv[]) {
         system(cmd);
         sleep(API_DELAY);
     }
+
     // Close the output file
     fclose(output);
     return 0;
@@ -256,9 +282,9 @@ void greet(void) {
         }
         printf("%s", "* ");
     }
+
     // Evaluation message
-    printf("%s\n\n\n", RESET);
-    printf("%s%s%s\n", GREEN, "Your data is being evaluated.", RESET);
+    printf("%s\n\n", RESET);
     sleep(1);
 }
 
@@ -284,10 +310,6 @@ int termWidth(void) {
 
 // Check if given path exists
 bool validatePath(char *path) {
-    // Check manually parsed 'null' from shell
-    if (strcmp(path, "null") == 0) {
-        return false;
-    }
     // Check if the given path exists
     if (access(path, F_OK) != -1) {
         return true;
