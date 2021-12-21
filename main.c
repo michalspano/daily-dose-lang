@@ -91,9 +91,8 @@ int main(int argc, char *argv[]) {
             printf("%s Displaying the last entry. %s\n", RED, RESET);
             sleep(1);
 
-            char temp[MAX_STR_LENGTH];
-            snprintf(temp, MAX_STR_LENGTH, "sh %s/mount.sh", script_source);
-            system(temp);
+            // Run the mount script to display the last entry
+            mountScriptInvoke(script_source);
             return 1;
         }
     }
@@ -244,6 +243,9 @@ int main(int argc, char *argv[]) {
 
     // Close the output file
     fclose(output);
+
+    // After successful completion, call the mount script by default
+    mountScriptInvoke(script_source);
     return 0;
 }
 
@@ -401,4 +403,11 @@ char *readLine(const char *file_path) {
     line[strlen(line) - 1] = '\0';
     fclose(file);
     return line; 
+}
+
+// Mount script invoke
+void mountScriptInvoke(char *rootPath) {
+    char buffMountCmd[MAX_STR_LENGTH];
+    snprintf(buffMountCmd, sizeof(buffMountCmd), "sh %s/mount.sh", rootPath);
+    system(buffMountCmd);
 }

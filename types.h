@@ -21,7 +21,7 @@
 const long time_gap = 43200;
 static char *root_translate = "dist/translation.txt";
 static char *root_out = "dist/output.txt";
-const char *PROMPT = "Welcome to your Daily Dose of Languages!";
+const char *PROMPT = "Welcome to `Daily Dose of Languages`!";
 
 // Possible languages options (statically defined)
 const int SIZE = 6;
@@ -37,6 +37,7 @@ int sys_abort(char *msg);
 int fileAbort(char *err_path);
 bool computeRandomEvent(int p);
 char *readLine(const char *file_path);
+void mountScriptInvoke(char *rootPath);
 const char *languageOptions(char *db_path);
 bool validatePath(char *database_path);
 bool eligibleForRefresh(long* d_p, char *translation_path);
