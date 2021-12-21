@@ -16,42 +16,85 @@ struct node {
 
 // Define the main function
 int main(int argc, char *argv[]) {
+                                                                            /*       
+        ***Minimum number of command line arguments***
+    [0]. base filename; [1]. database_path; [2]. optional flags             */
+
     if (argc < 2) {
         sys_abort(USAGE);
     }
-    // Deploy initial function to greet the user
-    greet();
 
-    // Append path to database from the command-line
+                                                                            /*
+                ***Getting the root of the project***
+        The file structure can be observed via running ./schema.sh
+        This will infer global support from the command line
+                                                                            */
+    char script_source[MAX_STR_LENGTH];
+    strcpy(script_source, argv[0]);
+    char *last_slash = strrchr(script_source, '/');
+    *last_slash = '\0';
+    last_slash = strrchr(script_source, '/');
+    *last_slash = '\0';
+
+    // Modify paths to global support with the root folder
+    char TRANSLATION[MAX_STR_LENGTH], output_path[MAX_STR_LENGTH];
+    snprintf(TRANSLATION, MAX_STR_LENGTH, "%s/%s", script_source, root_translate);
+    snprintf(output_path, MAX_STR_LENGTH, "%s/%s", script_source, root_out);
+
+    // Deploy initial function to greet the user
+
     char *database_path = argv[1];
 
-    // Check if database does exist
-    if (!validatePath(database_path)) {
-        sys_abort(DB_ERR);
-    }
-    // FIXME: add proper error handling
-    if (!validatePath(output_path)) {
-        sys_abort("File not found.");
-    }
-    if (!validatePath(TRANSLATION)) {
-        sys_abort("File not found.");
+    // Check empty invoke -> Show usage
+    if (strcmp(database_path, "null") == 0) {
+        sys_abort(USAGE);
     }
 
-    // Get the language prefix from the desired database
+    // Check if IO paths are valid
+    else if (!validatePath(database_path)) {
+        exit(fileAbort(database_path));
+    }
+    else if (!validatePath(output_path)) {
+        exit(fileAbort(output_path));
+    }
+    else if (!validatePath(TRANSLATION)) {
+        exit(fileAbort(TRANSLATION));
+    }
+
+    // Get the language prefix from the desired wordlist
     const char *lang_prefix = languageOptions(database_path);
-    // Handle unsupported language prefix
     if (lang_prefix == NULL) {
         sys_abort(INVALID_LANGUAGE);
     }
 
-    long d;
-    // Check if refresh is needed
-    if (!eligibleForRefresh(&d)) {
-        printf("%sRefresh in: %s%li seconds. %s", RED, ITALICS, (time_gap - d), RESET);
-        printf("%sDisplaying the last entry. %s\n", RED, RESET);
-        sleep(1);
-        MOUNT;
-        return 1;
+    bool enableTimeTracking = true;
+
+    // Initial greet function
+    greet();
+
+    // Validate any optional flags
+    if (argc == 3) {
+        char *flag = argv[2];
+        if ((strcmp(flag, "-ul") == 0) || (strcmp(flag, "--unlimited-mode") == 0)) {
+            printf("%sUnlimited mode enabled!%s\n", YELLOW, RESET);
+            enableTimeTracking = false;
+        } else {
+            sys_abort(USAGE);
+        }
+    }
+
+    // Default behavior is to enable time tracking
+    if (enableTimeTracking) {
+        long d;
+        if (!eligibleForRefresh(&d, TRANSLATION)) {
+            printf("%sRefresh in: %s%li seconds.%s", RED, ITALICS, (time_gap - d), RESET);
+            printf("%s Displaying the last entry. %s\n", RED, RESET);
+            sleep(1);
+
+            // Run the mount script to display the last entry
+            mountScriptInvoke(script_source);
+            return 1;
+        }
     }
 
     // Create new linked list
@@ -63,8 +106,9 @@ int main(int argc, char *argv[]) {
     FILE *database = fopen(database_path, "r");
 
     // Fixed size buffer for reading from file
-    char line[MAX_WORD_LENGTH];
+    char line[MAX_STR_LENGTH];
 
+    // Insert data into a singly linked list
     while (fgets(line, sizeof(line), database)) {
         // Create a new node
         struct node *new_node = (struct node *) malloc(sizeof(struct node));
@@ -73,8 +117,9 @@ int main(int argc, char *argv[]) {
         if (strlen(line) > longest_word) {
             longest_word = strlen(line);
         }
+
         // Skip words starting with a hyphen 
-        // since 'translate' function takes flags in the form:
+        // Hence 'translate' function takes flags in the form:
         // -s -t -h, etc.
         if (line[0] == '-') {
             continue;
@@ -82,6 +127,7 @@ int main(int argc, char *argv[]) {
 
         // Copy the data from the file into the node
         new_node->data = strdup(line);
+
         // Point the next pointer to NULL
         new_node->next = NULL;
 
@@ -91,8 +137,10 @@ int main(int argc, char *argv[]) {
         } else {
             current->next = new_node;
         }
+
         // Reset current node to new_node
         current = new_node;
+
         // Increment word count
         word_count++;
     }
@@ -104,10 +152,13 @@ int main(int argc, char *argv[]) {
     SEED_RESET;
     int i = 0;
     bool toWriteCurrentWord;
-    // FIXME: This variable is temporarily set to 5
-    const int numberOfDesiredWords = 5;
+
+    // The number of desired words will be set to 10
+    // This behaviour can be overridden by the user
+    const int numberOfDesiredWords = 10;
+
     // Percentage ratio
-    int ratio = word_count / numberOfDesiredWords - 1;
+    int ratio = word_count / numberOfDesiredWords;
 
     // Buffer to hold randomly chosen words
     char *arr[numberOfDesiredWords];
@@ -118,19 +169,19 @@ int main(int argc, char *argv[]) {
         if (i == numberOfDesiredWords || current->next == NULL) {
             break;
         }
-        // FIXME: mathematical relation and formula required
+
         // Decide upon random event
+        // The current module will infer the count to be <0; 10> randomly
         toWriteCurrentWord = computeRandomEvent(ratio);
         if (toWriteCurrentWord) {
             arr[i] = current->data;
             i++;
         }
-
     }
     // Print the words
-    printf("%s\n%sRandomly chosen words:\n%s", GREEN, UNDERLINE, RESET);
-    // Instantiate the translation command
-    // FIXME: dependency on the translation command via npm
+    printf("%s%sRandomly chosen words:\n\n%s", GREEN, UNDERLINE, RESET);
+
+    // Create the translation command
     char translate_command[50];
     snprintf(translate_command, sizeof(translate_command), "translate -s %s -t %s", lang_prefix, "en");
 
@@ -141,32 +192,36 @@ int main(int argc, char *argv[]) {
     }
 
     // Translation output file reset
-    FILE *translation_path = fopen(TRANSLATION, "w");
-    if (translation_path == NULL) {
+    FILE *translation_reset = fopen(TRANSLATION, "w");
+    if (translation_reset == NULL) {
         sys_abort("File error.");
     }
-    fclose(translation_path);
+    fclose(translation_reset);
 
     // Detect the current time
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
+
     // Convert to string 
     char time_string[80];
     strftime(time_string, sizeof(time_string), "%c", &tm);
 
     // Write to translation_path
-    translation_path = fopen(TRANSLATION, "a");
-    fprintf(translation_path, "%s\n", time_string);
-    fclose(translation_path);
+    FILE *translationFile = fopen(TRANSLATION, "a");
+    fprintf(translationFile, "%s\n", time_string);
+    fclose(translationFile);
 
-    // Create the write command, depending on '>>' command
-    const char *writeCommand = ">> dist/translation.txt\n";
+    // Create the write command, with'>>' 
+    char writeCommand[MAX_STR_LENGTH];
+    snprintf(writeCommand, sizeof(writeCommand), ">> %s\n", TRANSLATION);
 
     // Iterate over the contents of the array
     // Exclude garbage values
     for (int j = 0; j < i; j++) {
+
         // Write word to output file
         fprintf(output, "%s", arr[j]);
+
         // Create a cmd buffer
         char cmd[256];
 
@@ -185,8 +240,12 @@ int main(int argc, char *argv[]) {
         system(cmd);
         sleep(API_DELAY);
     }
+
     // Close the output file
     fclose(output);
+
+    // After successful completion, call the mount script by default
+    mountScriptInvoke(script_source);
     return 0;
 }
 
@@ -225,9 +284,9 @@ void greet(void) {
         }
         printf("%s", "* ");
     }
+
     // Evaluation message
-    printf("%s\n\n\n", RESET);
-    printf("%s%s%s\n", GREEN, "Your data is being evaluated.", RESET);
+    printf("%s\n\n", RESET);
     sleep(1);
 }
 
@@ -235,6 +294,12 @@ void greet(void) {
 int sys_abort(char *msg) {
     printf("%s%s%s\n", RED, msg, RESET);
     exit(1);    
+}
+
+// Report handle file errors
+int fileAbort(char *err_path) {
+    printf("%sError opening file %s.%s\n", RED, err_path, RESET);
+    return 1;
 }
 
 // Evaluate current terminal session
@@ -251,19 +316,6 @@ bool validatePath(char *path) {
     if (access(path, F_OK) != -1) {
         return true;
     }
-    char* PATH = malloc(sizeof(path));
-    strcpy(PATH, path);
-
-    // Split to directory and file name
-    char *dir = strtok(PATH, "/");
-    char *file = strtok(NULL, "/");
-    char cmd[100];
-
-    // Execute a command to make the directory and the file
-    snprintf(cmd, sizeof(cmd), "mkdir -p %s/ && touch %s/%s\n", 
-    dir, dir, file);
-    system(cmd);
-
     // Warn the user
     return false;
 }
@@ -298,10 +350,10 @@ bool computeRandomEvent(int p) {
 }
 
 // Create a function to determine eligible for a refreshent
-bool eligibleForRefresh(long* d_p) {
+bool eligibleForRefresh(long* d_p, char *translation_path) {
     time_t T;
     time(&T);
-    const char *default_time = readLine(TRANSLATION);
+    const char *default_time = readLine(translation_path);
 
     // If is empty return true -> new activity
     if (default_time == NULL) {
@@ -351,4 +403,11 @@ char *readLine(const char *file_path) {
     line[strlen(line) - 1] = '\0';
     fclose(file);
     return line; 
+}
+
+// Mount script invoke
+void mountScriptInvoke(char *rootPath) {
+    char buffMountCmd[MAX_STR_LENGTH];
+    snprintf(buffMountCmd, sizeof(buffMountCmd), "sh %s/mount.sh", rootPath);
+    system(buffMountCmd);
 }
