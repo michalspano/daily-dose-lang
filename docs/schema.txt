@@ -24,7 +24,7 @@
 ├── mount.sh
 ├── readme.md
 ├── run.sh
-├── test.sh
+├── package.json
 └── types.h
 
 4 directories, 19 files
