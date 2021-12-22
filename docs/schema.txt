@@ -18,6 +18,7 @@
 │   ├── output.txt
 │   └── translation.txt
 ├── docs
+│   ├── profile.png
 │   └── schema.txt
 ├── main.c
 ├── mount.c
@@ -27,6 +28,6 @@
 ├── package.json
 └── types.h
 
-4 directories, 19 files
+4 directories, 20 files
 Version: v0.0.0
 # Have fun :)
