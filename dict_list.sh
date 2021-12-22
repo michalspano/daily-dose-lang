@@ -4,7 +4,8 @@ database_path="${0%/*}/database/"
 flag="$1"
 
 # Help flag
-if [ "$flag" = "-h" ] || [ "$flag" = "--help" ] || [ "$flag" = "" ]; then
+# No flag represents the default behaviour
+if [ "$flag" = "-h" ] || [ "$flag" = "--help" ]; then
     printf "Usage: dict_list.sh [OPTION]\n"
     printf "Database path: %s\n" "'$database_path'"
     printf "Options:\n"

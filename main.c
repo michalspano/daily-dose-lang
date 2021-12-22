@@ -1,8 +1,13 @@
 /* 
-# Michal Spano  #
-#     CS50x     #
-# Final Project # 
-*/
+ *          DAILY DOSE (of) LANGUAGES - DD(o)L
+ *
+ *                CS50x - Final Project
+ *                         ***
+ *               Current version: v0.0.0
+ *                    Michal Špano
+ *
+ *           
+ */
 
 // Dependencies
 #include "types.h"
@@ -17,7 +22,7 @@ struct node {
 // Define the main function
 int main(int argc, char *argv[]) {
                                                                             /*       
-        ***Minimum number of command line arguments***
+        --- Minimum number of command line arguments ---
     [0]. base filename; [1]. database_path; [2]. optional flags             */
 
     if (argc < 2) {
@@ -25,7 +30,7 @@ int main(int argc, char *argv[]) {
     }
 
                                                                             /*
-                ***Getting the root of the project***
+                --- Getting the root of the project ---
         The file structure can be observed via running ./schema.sh
         This will infer global support from the command line
                                                                             */
