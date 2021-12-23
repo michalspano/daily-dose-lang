@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 
 // Define MACROS
-#define USAGE "Usage: ./main.c <database_input>\nOptional flags:\n-ul, --unlimited  Unlimited mode (disabled real-time counter)\n"
+#define USAGE "Usage: ./main.c <database_input>\nOptional flags:\n-ul, --unlimited-mode  Unlimited mode (disabled real-time counter)\n"
 #define GREET printf("%s%s%s\n", GREEN, PROMPT, RESET)
 #define MAX_STR_LENGTH 256
 #define SEED_RESET srand(time(NULL))
