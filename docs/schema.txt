@@ -9,7 +9,6 @@
 ├── colors.h
 ├── comp.sh
 ├── database
-│   ├── database.md
 │   ├── german_wordlist.txt
 │   ├── russian_wordlist.txt
 │   └── swedish_wordlist.txt
@@ -28,6 +27,6 @@
 ├── package.json
 └── types.h
 
-4 directories, 20 files
+4 directories, 19 files
 Version: v0.0.0
 # Have fun :)

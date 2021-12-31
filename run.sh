@@ -25,7 +25,7 @@ else
         files+=("${file##*/}")
     done
     for f in "${files[@]}"; do
-        f="${f%.*}"  # Remove the file extension, voiding '.md' extension
+        f="${f%.*}"  
         if [ "$f" = "${dict_wordlist_path}" ]; then
             # This infers the path of the language
             # Break from the loop and append the relative path of the keyword
