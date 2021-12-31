@@ -20,7 +20,7 @@
 A light-weight __CLI__ application with a great emphasis on performance, written in the `C` programming language and `POSIX sh`.
 
 <!-- Formatting the icon with an HTML tag -->
-<img src="docs/profile.png" width=250px height=250px></img>
+<img src="docs/profile.png" width=250px height=250px>
 
 ## Description
 
