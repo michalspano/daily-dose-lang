@@ -16,6 +16,7 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+[![Release][release-shield]][release-url]
 
 A light-weight __CLI__ application with a great emphasis on performance, written in the `C` programming language and `POSIX sh`.
 
@@ -45,3 +46,5 @@ In general, pure GUI -based apps are substantially slower than CLI -based progra
 [issues-url]: https://github.com/michalspano/daily-dose-lang/issues
 [license-shield]: https://img.shields.io/github/license/michalspano/daily-dose-lang.svg?style=for-the-badge
 [license-url]: https://github.com/michalspano/daily-dose-lang/blob/main/LICENSE
+[release-shield]: https://img.shields.io/github/tag/michalspano/daily-dose-lang.svg?style=for-the-badge
+[release-url]: https://github.com/michalspano/daily-dose-lang/releases/latest/
