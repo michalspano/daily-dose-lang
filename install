@@ -1,0 +1,72 @@
+#!/bin/sh
+
+##############################################################
+
+# ~/install
+# This script is expected to be run from the install directory
+# It will install the aliases and functions in the shell's config file
+# e.g. ~/.bashrc, ~/.bash_profile, ~/.zshrc, ~/.zsh_profile, etc.
+
+##############################################################
+
+argc=$#             # Argument count, number of command-line arguments
+config_path=""      # Default config path
+root="$(pwd)"       # Root path
+
+# This header is used to detect if the installation was already done
+# TODO: this aproad is a bit hacky, but it works for now, and it'll
+#       be fixed and/or renewed in the future.
+HEADER="# DD(o)L Alias Configuration (do not delete/edit this line)"
+
+# Colors
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+RESET="\033[0m"
+
+# You may change any of the following variables to your liking
+# Consider the following example: DDOL_ALIAS="<YOUR_PREDERED_ALIAS>"
+# NOTE: - Be sure not to include any redundant whitespaces
+#       - Be sure to include the trailing '='
+
+################# Personal Adjustements #######################
+
+DDOL_ALIAS="ddol"               # Change this to your preferred alias
+DICT_LIST_ALIAS="dict_list"     # Change this to your preferred alias
+MOUNT_ALIAS="mount"             # Change this to your preferred alias
+
+##############################################################
+
+# Check if the path was passed as an argument
+if [ "$argc" == 1 ]; then
+    config_path="$1"
+else
+    printf "${RED}Usage: ./install <config_path>${RESET}\n"
+    exit 1
+fi
+
+# Ensure the config file exists at the given path
+if [ ! -f "$config_path" ]; then
+    printf "${RED}Error: Invalid configuration file.${RESET}.\n"
+    exit 1
+fi
+
+# Check if the 'HEADER' is present in the config file
+# If so, abort the process of installation
+if grep -q "$HEADER" "$config_path"; then
+    printf "${RED}Error: Already configured.${RESET}\n"
+    exit 1
+fi
+
+# Write the config file
+printf "${GREEN}Writing to the config file: '${config_path}'${RESET}\n"
+
+# Create a function to write the config file
+function writeToConfig() {
+    printf "\n${HEADER}\n" >> "$config_path"
+    printf "# Source: ${0}\n" >> "$config_path"
+    printf "alias ${DDOL_ALIAS}=${root}/run.sh\n" >> "$config_path"
+    printf "alias ${DICT_LIST_ALIAS}=${root}/dict_list.sh\n" >> "$config_path"
+    printf "alias ${MOUNT_ALIAS}=${root}/mount.sh\n" >> "$config_path"  
+}
+
+writeToConfig 
