@@ -60,8 +60,11 @@ Navigate to `daily-dose-lang/install` and under `Personal Adjustments`, feel
 free to change any of the default names (i.e., the _key-words_ enclosed with double __quote marks__ `""`) such as:
 
 ```sh
-alias ddol="change_this_alias"
+alias "ddol"=$PATH
 ```
+
+\*Replace `$PATH` with the _relative path_ of the __script__ that the __alias__ refers to.
+
 __NOTE:__ be cautious to leave out any redundant whitespace which can result in an error.
 
 In order to __disable__ an alias, simply remove it from the specified `config` file.
