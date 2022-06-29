@@ -88,17 +88,17 @@ $ npm list
 
 2. __Installed__ by typing:
 ```sh
-$ npm install
+$ sudo npm install -g google-translate-cli
 ```
 
-In case you are experiencing difficulties with installing the __node dependency__, run the following command:
-```sh
-$ npm install -g google-translate-cli
-```
+\*We need to install the dependency __globally__, therefore using the `-g` flag. The reason for that: a __global__ dependency can be invoked virtually from any location within the systen, hence supporting a __system-wide__ scope. In order to install a package globally, the command has to be run as an __administrator__ or __root__ user. 
+
+- In __Unix__-like systems, this is achieved using the `sudo` command (before the `npm` command).
+- In __Windows__, we simply need to run the task with the administrator privileges.
 
 __NOTE:__ the accuracy of the translations might not be as precise as desired and is planned to be improved in the following versions.
 
-\* [Node dependency docs][NODE]
+\*[Node dependency docs][NODE]
 
 ## Functionalities
 __NOTE__: the following commands will be run from the directory's __root directory__.
