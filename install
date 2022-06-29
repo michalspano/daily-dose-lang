@@ -14,7 +14,7 @@ config_path=""      # Default config path
 root="$(pwd)"       # Root path
 
 # This header is used to detect if the installation was already done
-# TODO: this aproad is a bit hacky, but it works for now, and it'll
+# TODO: this approach is a bit hacky, but it works for now, and it'll
 #       be fixed and/or renewed in the future.
 HEADER="# DD(o)L Alias Configuration (do not delete/edit this line)"
 
@@ -70,3 +70,15 @@ function writeToConfig() {
 }
 
 writeToConfig 
+
+# run the initial call of the `main` bin (we use the --unlimited-mode)
+# to ensure that a proper initial time is set to dist/output.txt
+# we pick a random dataset from the database/ dir
+
+FILES=()
+for i in $(ls database/); do
+    FILES+=(database/$i)
+done
+
+IDX=$(($RANDOM % ${#FILES[@]}))
+./run.sh ${FILES[$IDX]} --unlimited-mode
